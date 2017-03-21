@@ -178,8 +178,14 @@ const RouteMixin = Ember.Mixin.create({
     this.set('_infinityModelName', modelName);
 
     this._ensureCompatibility();
+    let searchEndpoint = null;
+    if (options) {
+      searchEndpoint = options.endpoint ? options.endpoint : null;
+      options = options.endpoint ? options.params : assign({}, options);
+    } else {
+      options = {};
+    }
 
-    options = options ? assign({}, options) : {};
     const startingPage = options.startingPage === undefined ? 0 : options.startingPage-1;
 
     const perPage      = options.perPage || this.get('_perPage');
@@ -190,6 +196,7 @@ const RouteMixin = Ember.Mixin.create({
     delete options.modelPath;
 
     this.setProperties({
+      searchEndpoint,
       currentPage: startingPage,
       _firstPageLoaded: false,
       _perPage: perPage,
@@ -301,7 +308,7 @@ const RouteMixin = Ember.Mixin.create({
       keys(boundParams).forEach(k => params[k] = this.get(boundParams[k]));
     }
 
-    return params;
+    return this.get('searchEndpoint') ? { endpoint: this.get('searchEndpoint'), params} : params;
   },
 
   /**
